@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShelfMatch</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    h1 { color: #222; }
+    .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .name { font-weight: bold; font-size: 18px; }
+    .details { color: #666; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>ShelfMatch Distributors</h1>
+  <div id="distributor-list">Loading...</div>
+
+  <script>
+    fetch("https://shelfmatch-backend-5mjl.vercel.app/api/distributors")
+      .then(response => response.json())
+      .then(data => {
+        const list = document.getElementById("distributor-list");
+        list.innerHTML = "";
+
+        data.distributors.forEach(d => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <div class="name">${d.name}</div>
+            <div class="details">${d.location} — ${d.category}</div>
+          `;
+          list.appendChild(card);
+        });
+      })
+      .catch(error => {
+        document.getElementById("distributor-list").innerText = "Could not load distributors.";
+        console.error(error);
+      });
+  </script>
+
+</body>
+</html>
