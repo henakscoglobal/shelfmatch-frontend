@@ -298,6 +298,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          secret: "shelfmatch-2026-secure",
           name,
           phone,
           distributor: selectedContactType === "distributor" ? selectedContactName : "",
