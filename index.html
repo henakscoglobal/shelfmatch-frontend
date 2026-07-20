@@ -31,7 +31,7 @@
 
   <div class="modal" id="inquiry-modal">
     <div class="modal-box">
-      <div id="modal-title" style="font-weight:bold; margin-bottom:5px;">Contact Distributor</div>
+      <div id="modal-title" style="font-weight:bold; margin-bottom:5px;">Contact</div>
       <input type="text" id="inquiry-name" placeholder="Your name">
       <input type="text" id="inquiry-phone" placeholder="Your phone number">
       <div>
@@ -43,11 +43,13 @@
   </div>
 
   <script>
-    let selectedDistributor = "";
+    let selectedContactName = "";
+    let selectedContactType = "";
 
-    function openModal(distributorName) {
-      selectedDistributor = distributorName;
-      document.getElementById("modal-title").innerText = "Contact " + distributorName;
+    function openModal(contactName, contactType) {
+      selectedContactName = contactName;
+      selectedContactType = contactType;
+      document.getElementById("modal-title").innerText = "Contact " + contactName;
       document.getElementById("status-msg").innerText = "";
       document.getElementById("inquiry-modal").classList.add("active");
     }
@@ -68,7 +70,13 @@
       fetch("https://shelfmatch-backend-5mjl.vercel.app/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, distributor: selectedDistributor }),
+        body: JSON.stringify({
+          name,
+          phone,
+          distributor: selectedContactType === "distributor" ? selectedContactName : "",
+          buyer: selectedContactType === "buyer" ? selectedContactName : "",
+          contactType: selectedContactType,
+        }),
       })
         .then(response => response.json())
         .then(data => {
@@ -95,7 +103,7 @@
           card.innerHTML = `
             <div class="name">${d.NAME}</div>
             <div class="details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
-            <button class="contact-btn" onclick="openModal('${d.NAME}')">Contact this distributor</button>
+            <button class="contact-btn" onclick="openModal('${d.NAME}', 'distributor')">Contact this distributor</button>
           `;
           list.appendChild(card);
         });
@@ -117,6 +125,7 @@
           card.innerHTML = `
             <div class="name">${b.NAME}</div>
             <div class="details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
+            <button class="contact-btn" onclick="openModal('${b.NAME}', 'buyer')">Contact this buyer</button>
           `;
           list.appendChild(card);
         });
