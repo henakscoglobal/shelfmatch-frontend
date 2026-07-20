@@ -56,6 +56,23 @@
       letter-spacing: 0.2px;
     }
 
+    .register-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .register-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1.5px solid var(--cream);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--cream);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
     .section {
       padding: 24px 16px 8px;
     }
@@ -170,6 +187,8 @@
       border-radius: 10px;
       width: 100%;
       max-width: 340px;
+      max-height: 85vh;
+      overflow-y: auto;
     }
 
     .modal-box .modal-title {
@@ -238,6 +257,10 @@
       <p class="brand">ShelfMatch</p>
     </div>
     <p class="tagline">Connecting distributors and buyers across Onitsha, Nnewi, Awka &amp; Asaba</p>
+    <div class="register-row">
+      <button class="register-btn" onclick="openRegisterModal('distributor')">Register as Distributor</button>
+      <button class="register-btn" onclick="openRegisterModal('buyer')">Register as Buyer</button>
+    </div>
   </div>
 
   <div class="section">
@@ -269,9 +292,24 @@
     </div>
   </div>
 
+  <div class="modal" id="register-modal">
+    <div class="modal-box">
+      <div class="modal-title" id="register-modal-title">Register</div>
+      <input type="text" id="register-name" placeholder="Business / your name">
+      <input type="text" id="register-location" placeholder="Location (e.g. Onitsha)">
+      <input type="text" id="register-extra" placeholder="Category">
+      <div class="modal-actions">
+        <button class="submit-btn" onclick="submitRegister()">Register</button>
+        <button class="cancel-btn" onclick="closeRegisterModal()">Cancel</button>
+      </div>
+      <div class="status-msg" id="register-status-msg"></div>
+    </div>
+  </div>
+
   <script>
     let selectedContactName = "";
     let selectedContactType = "";
+    let registerType = "";
 
     function openModal(contactName, contactType) {
       selectedContactName = contactName;
@@ -315,6 +353,55 @@
         })
         .catch(error => {
           document.getElementById("status-msg").innerText = "Something went wrong. Try again.";
+          console.error(error);
+        });
+    }
+
+    function openRegisterModal(type) {
+      registerType = type;
+      const title = type === "distributor" ? "Register as Distributor" : "Register as Buyer";
+      document.getElementById("register-modal-title").innerText = title;
+      document.getElementById("register-extra").placeholder = type === "distributor" ? "Category (e.g. Dairy)" : "Looking for (e.g. Dairy)";
+      document.getElementById("register-status-msg").innerText = "";
+      document.getElementById("register-modal").classList.add("active");
+    }
+
+    function closeRegisterModal() {
+      document.getElementById("register-modal").classList.remove("active");
+    }
+
+    function submitRegister() {
+      const name = document.getElementById("register-name").value;
+      const location = document.getElementById("register-location").value;
+      const extra = document.getElementById("register-extra").value;
+
+      if (!name || !location || !extra) {
+        document.getElementById("register-status-msg").innerText = "Please fill in all fields.";
+        return;
+      }
+
+      fetch("https://shelfmatch-backend-5mjl.vercel.app/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret: "shelfmatch-2026-secure",
+          registerType,
+          name,
+          location,
+          category: registerType === "distributor" ? extra : "",
+          lookingFor: registerType === "buyer" ? extra : "",
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("register-status-msg").innerText = "Registered! Refresh to see your listing.";
+          document.getElementById("register-name").value = "";
+          document.getElementById("register-location").value = "";
+          document.getElementById("register-extra").value = "";
+          setTimeout(closeRegisterModal, 1800);
+        })
+        .catch(error => {
+          document.getElementById("register-status-msg").innerText = "Something went wrong. Try again.";
           console.error(error);
         });
     }
