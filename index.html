@@ -10,16 +10,79 @@
     .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .name { font-weight: bold; font-size: 18px; }
     .details { color: #666; margin-top: 5px; }
+    .contact-btn { margin-top: 10px; padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 14px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-box { background: white; padding: 20px; border-radius: 10px; width: 85%; max-width: 350px; }
+    .modal-box input { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .modal-box button { margin-top: 15px; padding: 10px 16px; border: none; border-radius: 6px; font-size: 15px; }
+    .submit-btn { background: #16a34a; color: white; margin-right: 8px; }
+    .cancel-btn { background: #e5e7eb; }
+    .status-msg { margin-top: 10px; font-size: 14px; }
   </style>
 </head>
 <body>
 
   <h1>ShelfMatch Distributors</h1>
   <div id="distributor-list">Loading...</div>
+
   <h1>ShelfMatch Buyers</h1>
   <div id="buyer-list">Loading...</div>
 
+  <div class="modal" id="inquiry-modal">
+    <div class="modal-box">
+      <div id="modal-title" style="font-weight:bold; margin-bottom:5px;">Contact Distributor</div>
+      <input type="text" id="inquiry-name" placeholder="Your name">
+      <input type="text" id="inquiry-phone" placeholder="Your phone number">
+      <div>
+        <button class="submit-btn" onclick="submitInquiry()">Send</button>
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      </div>
+      <div class="status-msg" id="status-msg"></div>
+    </div>
+  </div>
+
   <script>
+    let selectedDistributor = "";
+
+    function openModal(distributorName) {
+      selectedDistributor = distributorName;
+      document.getElementById("modal-title").innerText = "Contact " + distributorName;
+      document.getElementById("status-msg").innerText = "";
+      document.getElementById("inquiry-modal").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("inquiry-modal").classList.remove("active");
+    }
+
+    function submitInquiry() {
+      const name = document.getElementById("inquiry-name").value;
+      const phone = document.getElementById("inquiry-phone").value;
+
+      if (!name || !phone) {
+        document.getElementById("status-msg").innerText = "Please fill in both fields.";
+        return;
+      }
+
+      fetch("https://shelfmatch-backend-5mjl.vercel.app/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, distributor: selectedDistributor }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("status-msg").innerText = "Sent! We'll be in touch.";
+          document.getElementById("inquiry-name").value = "";
+          document.getElementById("inquiry-phone").value = "";
+          setTimeout(closeModal, 1500);
+        })
+        .catch(error => {
+          document.getElementById("status-msg").innerText = "Something went wrong. Try again.";
+          console.error(error);
+        });
+    }
+
     fetch("https://shelfmatch-backend-5mjl.vercel.app/api/distributors")
       .then(response => response.json())
       .then(data => {
@@ -30,9 +93,10 @@
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
-  <div class="name">${d.NAME}</div>
-  <div class="details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
-`;
+            <div class="name">${d.NAME}</div>
+            <div class="details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
+            <button class="contact-btn" onclick="openModal('${d.NAME}')">Contact this distributor</button>
+          `;
           list.appendChild(card);
         });
       })
@@ -51,9 +115,9 @@
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
-  <div class="name">${b.NAME}</div>
-  <div class="details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
-`;
+            <div class="name">${b.NAME}</div>
+            <div class="details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
+          `;
           list.appendChild(card);
         });
       })
