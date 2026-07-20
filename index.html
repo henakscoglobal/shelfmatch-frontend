@@ -59,6 +59,7 @@
     function submitInquiry() {
       const name = document.getElementById("inquiry-name").value;
       const phone = document.getElementById("inquiry-phone").value;
+      alert("DEBUG — name: [" + name + "] phone: [" + phone + "]");
 
       if (!name || !phone) {
         document.getElementById("status-msg").innerText = "Please fill in both fields.";
