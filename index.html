@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ShelfMatch</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1F4D3A">
   <style>
     :root {
       --market-green: #1F4D3A;
@@ -459,6 +461,10 @@
         document.getElementById("buyer-list").innerHTML = '<div class="loading-text">Could not load buyers.</div>';
         console.error(error);
       });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
   </script>
 
 </body>
