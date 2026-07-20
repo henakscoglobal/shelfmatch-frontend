@@ -16,6 +16,8 @@
 
   <h1>ShelfMatch Distributors</h1>
   <div id="distributor-list">Loading...</div>
+  <h1>ShelfMatch Buyers</h1>
+  <div id="buyer-list">Loading...</div>
 
   <script>
     fetch("https://shelfmatch-backend-5mjl.vercel.app/api/distributors")
@@ -36,6 +38,27 @@
       })
       .catch(error => {
         document.getElementById("distributor-list").innerText = "Could not load distributors.";
+        console.error(error);
+      });
+
+    fetch("https://shelfmatch-backend-5mjl.vercel.app/api/buyers")
+      .then(response => response.json())
+      .then(data => {
+        const list = document.getElementById("buyer-list");
+        list.innerHTML = "";
+
+        data.buyers.forEach(b => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+  <div class="name">${b.NAME}</div>
+  <div class="details">${b.LOCATION} — ${b["LOOKING_FOR "]}</div>
+`;
+          list.appendChild(card);
+        });
+      })
+      .catch(error => {
+        document.getElementById("buyer-list").innerText = "Could not load buyers.";
         console.error(error);
       });
   </script>
