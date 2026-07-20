@@ -5,36 +5,244 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ShelfMatch</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-    h1 { color: #222; }
-    .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .name { font-weight: bold; font-size: 18px; }
-    .details { color: #666; margin-top: 5px; }
-    .contact-btn { margin-top: 10px; padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 14px; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+    :root {
+      --market-green: #1F4D3A;
+      --market-green-dark: #163829;
+      --ochre: #C4841D;
+      --ochre-dark: #9C6816;
+      --cream: #FAF6EE;
+      --ink: #2A2620;
+      --ink-soft: #6B6459;
+      --line: #E4DCC8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+    }
+
+    .top-bar {
+      background: var(--market-green);
+      padding: 22px 20px 26px;
+      color: var(--cream);
+    }
+
+    .top-bar .brand {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 26px;
+      letter-spacing: 0.3px;
+      margin: 0;
+    }
+
+    .top-bar .tagline {
+      font-size: 13px;
+      color: #C9DAC9;
+      margin-top: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .section {
+      padding: 24px 16px 8px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-header h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 19px;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .section-header .count {
+      font-size: 12px;
+      color: var(--ink-soft);
+      background: var(--line);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 2px rgba(42,38,32,0.08);
+      display: flex;
+      overflow: hidden;
+    }
+
+    .card-bar {
+      width: 5px;
+      flex-shrink: 0;
+    }
+
+    .card.distributor .card-bar { background: var(--market-green); }
+    .card.buyer .card-bar { background: var(--ochre); }
+
+    .card-body {
+      padding: 13px 15px;
+      flex: 1;
+    }
+
+    .card-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--ink);
+    }
+
+    .card-details {
+      color: var(--ink-soft);
+      font-size: 13px;
+      margin-top: 3px;
+      letter-spacing: 0.2px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      margin-top: 8px;
+    }
+
+    .card.distributor .tag { background: #E7F0EA; color: var(--market-green-dark); }
+    .card.buyer .tag { background: #FBEDD6; color: var(--ochre-dark); }
+
+    .contact-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      display: block;
+      width: 100%;
+    }
+
+    .card.distributor .contact-btn { background: var(--market-green); }
+    .card.buyer .contact-btn { background: var(--ochre); }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(31, 26, 18, 0.55);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
     .modal.active { display: flex; }
-    .modal-box { background: white; padding: 20px; border-radius: 10px; width: 85%; max-width: 350px; }
-    .modal-box input { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    .modal-box button { margin-top: 15px; padding: 10px 16px; border: none; border-radius: 6px; font-size: 15px; }
-    .submit-btn { background: #16a34a; color: white; margin-right: 8px; }
-    .cancel-btn { background: #e5e7eb; }
-    .status-msg { margin-top: 10px; font-size: 14px; }
+
+    .modal-box {
+      background: white;
+      padding: 22px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .modal-box .modal-title {
+      font-family: Georgia, serif;
+      font-weight: 700;
+      font-size: 17px;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .modal-box input {
+      width: 100%;
+      padding: 11px;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+      background: var(--cream);
+    }
+
+    .modal-box input:focus {
+      outline: 2px solid var(--market-green);
+      outline-offset: 1px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .modal-box button {
+      flex: 1;
+      padding: 11px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .submit-btn { background: var(--market-green); color: white; }
+    .cancel-btn { background: var(--line); color: var(--ink); }
+
+    .status-msg {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--market-green-dark);
+    }
+
+    .loading-text {
+      color: var(--ink-soft);
+      font-size: 14px;
+      padding: 6px 0;
+    }
   </style>
 </head>
 <body>
 
-  <h1>ShelfMatch Distributors</h1>
-  <div id="distributor-list">Loading...</div>
+  <div class="top-bar">
+    <p class="brand">ShelfMatch</p>
+    <p class="tagline">Connecting distributors and buyers across Onitsha, Nnewi, Awka &amp; Asaba</p>
+  </div>
 
-  <h1>ShelfMatch Buyers</h1>
-  <div id="buyer-list">Loading...</div>
+  <div class="section">
+    <div class="section-header">
+      <h2>Distributors</h2>
+      <span class="count" id="distributor-count"></span>
+    </div>
+    <div id="distributor-list"><div class="loading-text">Loading distributors…</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Buyers</h2>
+      <span class="count" id="buyer-count"></span>
+    </div>
+    <div id="buyer-list"><div class="loading-text">Loading buyers…</div></div>
+  </div>
 
   <div class="modal" id="inquiry-modal">
     <div class="modal-box">
-      <div id="modal-title" style="font-weight:bold; margin-bottom:5px;">Contact</div>
+      <div class="modal-title" id="modal-title">Contact</div>
       <input type="text" id="inquiry-name" placeholder="Your name">
       <input type="text" id="inquiry-phone" placeholder="Your phone number">
-      <div>
+      <div class="modal-actions">
         <button class="submit-btn" onclick="submitInquiry()">Send</button>
         <button class="cancel-btn" onclick="closeModal()">Cancel</button>
       </div>
@@ -96,20 +304,25 @@
       .then(data => {
         const list = document.getElementById("distributor-list");
         list.innerHTML = "";
+        document.getElementById("distributor-count").innerText = data.distributors.length;
 
         data.distributors.forEach(d => {
           const card = document.createElement("div");
-          card.className = "card";
+          card.className = "card distributor";
           card.innerHTML = `
-            <div class="name">${d.NAME}</div>
-            <div class="details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
-            <button class="contact-btn" onclick="openModal('${d.NAME}', 'distributor')">Contact this distributor</button>
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-name">${d.NAME}</div>
+              <div class="card-details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
+              <span class="tag">Distributor</span>
+              <button class="contact-btn" onclick="openModal('${d.NAME}', 'distributor')">Contact this distributor</button>
+            </div>
           `;
           list.appendChild(card);
         });
       })
       .catch(error => {
-        document.getElementById("distributor-list").innerText = "Could not load distributors.";
+        document.getElementById("distributor-list").innerHTML = '<div class="loading-text">Could not load distributors.</div>';
         console.error(error);
       });
 
@@ -118,20 +331,25 @@
       .then(data => {
         const list = document.getElementById("buyer-list");
         list.innerHTML = "";
+        document.getElementById("buyer-count").innerText = data.buyers.length;
 
         data.buyers.forEach(b => {
           const card = document.createElement("div");
-          card.className = "card";
+          card.className = "card buyer";
           card.innerHTML = `
-            <div class="name">${b.NAME}</div>
-            <div class="details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
-            <button class="contact-btn" onclick="openModal('${b.NAME}', 'buyer')">Contact this buyer</button>
+            <div class="card-bar"></div>
+            <div class="card-body">
+              <div class="card-name">${b.NAME}</div>
+              <div class="card-details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
+              <span class="tag">Buyer</span>
+              <button class="contact-btn" onclick="openModal('${b.NAME}', 'buyer')">Contact this buyer</button>
+            </div>
           `;
           list.appendChild(card);
         });
       })
       .catch(error => {
-        document.getElementById("buyer-list").innerText = "Could not load buyers.";
+        document.getElementById("buyer-list").innerHTML = '<div class="loading-text">Could not load buyers.</div>';
         console.error(error);
       });
   </script>
