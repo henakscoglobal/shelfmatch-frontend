@@ -73,6 +73,7 @@
       })
         .then(response => response.json())
         .then(data => {
+          alert("BACKEND RECEIVED: " + JSON.stringify(data));
           document.getElementById("status-msg").innerText = "Sent! We'll be in touch.";
           document.getElementById("inquiry-name").value = "";
           document.getElementById("inquiry-phone").value = "";
