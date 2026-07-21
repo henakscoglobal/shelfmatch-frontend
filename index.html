@@ -330,6 +330,7 @@
     <div class="register-row" style="margin-top:8px;">
       <button class="register-btn" onclick="openHistoryModal()">My Inquiries</button>
     </div>
+    <div id="queue-badge" class="mono" style="display:none;margin-top:10px;font-size:11px;color:var(--brass-soft);background:rgba(201,162,39,0.15);border:1px solid rgba(201,162,39,0.3);padding:7px 12px;border-radius:100px;text-align:center;"></div>
   </div>
 
   <div class="stitch"></div>
@@ -421,17 +422,28 @@
         return;
       }
 
+      const payload = {
+        secret: "shelfmatch-2026-secure",
+        name,
+        phone,
+        distributor: selectedContactType === "distributor" ? selectedContactName : "",
+        buyer: selectedContactType === "buyer" ? selectedContactName : "",
+        contactType: selectedContactType,
+      };
+
+      if (!navigator.onLine) {
+        queueInquiry(payload, selectedContactName, selectedContactType);
+        document.getElementById("status-msg").innerText = "No connection — saved. Will send automatically when you're back online.";
+        document.getElementById("inquiry-name").value = "";
+        document.getElementById("inquiry-phone").value = "";
+        setTimeout(closeModal, 2200);
+        return;
+      }
+
       fetch("https://shelfmatch-backend-5mjl.vercel.app/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          secret: "shelfmatch-2026-secure",
-          name,
-          phone,
-          distributor: selectedContactType === "distributor" ? selectedContactName : "",
-          buyer: selectedContactType === "buyer" ? selectedContactName : "",
-          contactType: selectedContactType,
-        }),
+        body: JSON.stringify(payload),
       })
         .then(response => response.json())
         .then(data => {
@@ -442,10 +454,82 @@
           setTimeout(closeModal, 1500);
         })
         .catch(error => {
-          document.getElementById("status-msg").innerText = "Something went wrong. Try again.";
+          queueInquiry(payload, selectedContactName, selectedContactType);
+          document.getElementById("status-msg").innerText = "Connection issue — saved. Will send automatically when you're back online.";
+          document.getElementById("inquiry-name").value = "";
+          document.getElementById("inquiry-phone").value = "";
+          setTimeout(closeModal, 2200);
           console.error(error);
         });
     }
+
+    function queueInquiry(payload, contactName, contactType) {
+      try {
+        const queue = JSON.parse(localStorage.getItem("shelfmatch_queue") || "[]");
+        queue.push({ payload, contactName, contactType });
+        localStorage.setItem("shelfmatch_queue", JSON.stringify(queue));
+        updateQueueBadge();
+      } catch (e) {
+        console.error("Could not queue inquiry:", e);
+      }
+    }
+
+    function processQueue() {
+      let queue = [];
+      try {
+        queue = JSON.parse(localStorage.getItem("shelfmatch_queue") || "[]");
+      } catch (e) {
+        queue = [];
+      }
+
+      if (queue.length === 0) return;
+
+      const remaining = [];
+      let processed = 0;
+
+      queue.forEach(item => {
+        fetch("https://shelfmatch-backend-5mjl.vercel.app/api/inquiries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item.payload),
+        })
+          .then(response => response.json())
+          .then(() => {
+            saveInquiryToHistory(item.contactName, item.contactType);
+            processed++;
+            localStorage.setItem("shelfmatch_queue", JSON.stringify(remaining));
+            updateQueueBadge();
+          })
+          .catch(() => {
+            remaining.push(item);
+            localStorage.setItem("shelfmatch_queue", JSON.stringify(remaining));
+            updateQueueBadge();
+          });
+      });
+    }
+
+    function updateQueueBadge() {
+      let queue = [];
+      try {
+        queue = JSON.parse(localStorage.getItem("shelfmatch_queue") || "[]");
+      } catch (e) {
+        queue = [];
+      }
+      const badge = document.getElementById("queue-badge");
+      if (!badge) return;
+      if (queue.length > 0) {
+        badge.style.display = "block";
+        badge.innerText = queue.length + " inquiry" + (queue.length > 1 ? "ies" : "") + " waiting to send";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
+    window.addEventListener("online", processQueue);
+    window.addEventListener("load", () => {
+      updateQueueBadge();
+      if (navigator.onLine) processQueue();
+    });
 
     function saveInquiryToHistory(contactName, contactType) {
       try {
