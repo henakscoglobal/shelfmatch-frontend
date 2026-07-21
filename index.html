@@ -5,32 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ShelfMatch</title>
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#1F4D3A">
+  <meta name="theme-color" content="#0F3D2E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --market-green: #1F4D3A;
-      --market-green-dark: #163829;
-      --ochre: #C4841D;
-      --ochre-dark: #9C6816;
-      --cream: #FAF6EE;
-      --ink: #2A2620;
-      --ink-soft: #6B6459;
-      --line: #E4DCC8;
+      --ink: #1A1A1A;
+      --forest: #0F3D2E;
+      --forest-soft: #3D6B52;
+      --parchment: #F6F1E4;
+      --parchment-dim: #EDE5D2;
+      --brass: #C9A227;
+      --brass-soft: #E4C766;
+      --rust: #B5482A;
+      --line: rgba(15,61,46,0.16);
+      --shadow: 0 12px 30px rgba(15,61,46,0.12);
     }
 
     * { box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      background: var(--cream);
+      background: var(--parchment);
       color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    .display { font-family: 'Fraunces', serif; }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--forest-soft);
+      font-weight: 600;
     }
 
     .top-bar {
-      background: var(--market-green);
-      padding: 22px 20px 26px;
-      color: var(--cream);
+      background: var(--forest);
+      padding: 24px 20px 22px;
+      color: var(--parchment);
     }
 
     .brand-row {
@@ -39,127 +56,170 @@
       gap: 10px;
     }
 
-    .logo-mark {
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: var(--parchment);
+      color: var(--forest);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
 
     .top-bar .brand {
-      font-family: Georgia, "Times New Roman", serif;
-      font-weight: 700;
-      font-size: 26px;
-      letter-spacing: 0.3px;
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 25px;
+      letter-spacing: -0.01em;
       margin: 0;
     }
 
     .top-bar .tagline {
       font-size: 13px;
-      color: #C9DAC9;
-      margin-top: 6px;
-      letter-spacing: 0.2px;
+      color: rgba(246,241,228,0.72);
+      margin-top: 8px;
+      line-height: 1.5;
     }
 
     .register-row {
       display: flex;
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     .register-btn {
       flex: 1;
-      padding: 10px;
-      border: 1.5px solid var(--cream);
-      border-radius: 6px;
+      padding: 11px;
+      border: 1px solid rgba(246,241,228,0.4);
+      border-radius: 100px;
       background: transparent;
-      color: var(--cream);
-      font-size: 13px;
+      color: var(--parchment);
+      font-size: 12.5px;
       font-weight: 600;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Ledger stitch divider */
+    .stitch {
+      height: 1px;
+      width: 100%;
+      background-image: repeating-linear-gradient(to right, var(--forest) 0 8px, transparent 8px 14px);
+      opacity: 0.3;
     }
 
     .section {
-      padding: 24px 16px 8px;
+      padding: 26px 16px 6px;
     }
 
     .section-header {
+      margin-bottom: 16px;
+    }
+
+    .section-header .eyebrow {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .section-header-row {
       display: flex;
       align-items: baseline;
       gap: 8px;
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--line);
     }
 
     .section-header h2 {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 19px;
+      font-family: 'Fraunces', serif;
+      font-size: 21px;
+      font-weight: 600;
       margin: 0;
       color: var(--ink);
+      letter-spacing: -0.01em;
     }
 
     .section-header .count {
-      font-size: 12px;
-      color: var(--ink-soft);
-      background: var(--line);
-      padding: 2px 8px;
-      border-radius: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--forest-soft);
+      background: var(--parchment-dim);
+      border: 1px solid var(--line);
+      padding: 2px 9px;
+      border-radius: 100px;
     }
 
     .card {
-      background: white;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 2px rgba(42,38,32,0.08);
-      display: flex;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      margin-bottom: 12px;
       overflow: hidden;
+      box-shadow: 0 2px 8px rgba(15,61,46,0.05);
     }
 
     .card-bar {
-      width: 5px;
-      flex-shrink: 0;
+      height: 4px;
+      width: 100%;
     }
 
-    .card.distributor .card-bar { background: var(--market-green); }
-    .card.buyer .card-bar { background: var(--ochre); }
+    .card.distributor .card-bar { background: var(--forest); }
+    .card.buyer .card-bar { background: var(--brass); }
 
     .card-body {
-      padding: 13px 15px;
-      flex: 1;
-      min-width: 0;
+      padding: 15px 16px 16px;
     }
 
     .card-name {
+      font-family: 'Fraunces', serif;
       font-weight: 600;
-      font-size: 16px;
+      font-size: 17px;
       color: var(--ink);
+      letter-spacing: -0.005em;
     }
 
     .card-details {
-      color: var(--ink-soft);
+      color: #6b6b60;
       font-size: 13px;
-      margin-top: 3px;
-      letter-spacing: 0.2px;
+      margin-top: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.01em;
     }
 
     .tag {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.08em;
       font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 3px;
-      margin-top: 8px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      margin-top: 10px;
     }
 
-    .card.distributor .tag { background: #E7F0EA; color: var(--market-green-dark); }
-    .card.buyer .tag { background: #FBEDD6; color: var(--ochre-dark); }
+    .tag .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .card.distributor .tag { background: rgba(15,61,46,0.08); color: var(--forest); }
+    .card.distributor .tag .dot { background: var(--forest); }
+    .card.buyer .tag { background: rgba(201,162,39,0.14); color: #8a6c14; }
+    .card.buyer .tag .dot { background: var(--brass); }
 
     .contact-btn {
-      margin-top: 10px;
-      padding: 8px 10px;
+      margin-top: 12px;
+      padding: 10px 10px;
       border: none;
-      border-radius: 5px;
-      font-size: 12.5px;
+      border-radius: 100px;
+      font-size: 13px;
       font-weight: 600;
+      font-family: 'Inter', sans-serif;
       color: white;
       display: block;
       width: 100%;
@@ -167,84 +227,91 @@
       box-sizing: border-box;
     }
 
-    .card.distributor .contact-btn { background: var(--market-green); }
-    .card.buyer .contact-btn { background: var(--ochre); }
+    .card.distributor .contact-btn { background: var(--forest); }
+    .card.buyer .contact-btn { background: var(--rust); }
 
     .modal {
       display: none;
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(31, 26, 18, 0.55);
+      background: rgba(15, 30, 22, 0.55);
       align-items: center;
       justify-content: center;
       padding: 20px;
+      backdrop-filter: blur(2px);
     }
 
     .modal.active { display: flex; }
 
     .modal-box {
-      background: white;
-      padding: 22px;
-      border-radius: 10px;
+      background: var(--parchment);
+      padding: 24px;
+      border-radius: 18px;
       width: 100%;
       max-width: 340px;
       max-height: 85vh;
       overflow-y: auto;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
     }
 
     .modal-box .modal-title {
-      font-family: Georgia, serif;
-      font-weight: 700;
-      font-size: 17px;
-      margin-bottom: 12px;
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 18px;
+      margin-bottom: 14px;
       color: var(--ink);
     }
 
     .modal-box input {
       width: 100%;
-      padding: 11px;
-      margin-top: 8px;
+      padding: 12px 13px;
+      margin-top: 9px;
       border: 1px solid var(--line);
-      border-radius: 6px;
+      border-radius: 10px;
       box-sizing: border-box;
       font-size: 14px;
-      background: var(--cream);
+      background: #fff;
+      font-family: 'Inter', sans-serif;
     }
 
     .modal-box input:focus {
-      outline: 2px solid var(--market-green);
+      outline: 2px solid var(--forest);
       outline-offset: 1px;
     }
 
     .modal-actions {
       display: flex;
       gap: 8px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     .modal-box button {
       flex: 1;
-      padding: 11px 14px;
+      padding: 12px 14px;
       border: none;
-      border-radius: 6px;
+      border-radius: 100px;
       font-size: 14px;
       font-weight: 600;
+      font-family: 'Inter', sans-serif;
     }
 
-    .submit-btn { background: var(--market-green); color: white; }
-    .cancel-btn { background: var(--line); color: var(--ink); }
+    .submit-btn { background: var(--forest); color: white; }
+    .cancel-btn { background: var(--parchment-dim); color: var(--ink); border: 1px solid var(--line) !important; }
 
     .status-msg {
-      margin-top: 10px;
+      margin-top: 11px;
       font-size: 13px;
-      color: var(--market-green-dark);
+      color: var(--forest);
+      font-family: 'IBM Plex Mono', monospace;
     }
 
     .loading-text {
-      color: var(--ink-soft);
+      color: #8a8a7f;
       font-size: 14px;
       padding: 6px 0;
+      font-family: 'IBM Plex Mono', monospace;
     }
   </style>
 </head>
@@ -252,10 +319,7 @@
 
   <div class="top-bar">
     <div class="brand-row">
-      <svg class="logo-mark" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="6" width="16" height="16" rx="4" fill="#FAF6EE"/>
-        <rect x="16" y="12" width="16" height="16" rx="4" fill="#C4841D"/>
-      </svg>
+      <div class="brand-mark">SM</div>
       <p class="brand">ShelfMatch</p>
     </div>
     <p class="tagline">Connecting distributors and buyers across Onitsha, Nnewi, Awka &amp; Asaba</p>
@@ -263,20 +327,33 @@
       <button class="register-btn" onclick="openRegisterModal('distributor')">Register as Distributor</button>
       <button class="register-btn" onclick="openRegisterModal('buyer')">Register as Buyer</button>
     </div>
+    <div class="register-row" style="margin-top:8px;">
+      <button class="register-btn" onclick="openHistoryModal()">My Inquiries</button>
+    </div>
   </div>
+
+  <div class="stitch"></div>
 
   <div class="section">
     <div class="section-header">
-      <h2>Distributors</h2>
-      <span class="count" id="distributor-count"></span>
+      <span class="eyebrow">Supply Side</span>
+      <div class="section-header-row">
+        <h2>Distributors</h2>
+        <span class="count" id="distributor-count"></span>
+      </div>
     </div>
     <div id="distributor-list"><div class="loading-text">Loading distributors…</div></div>
   </div>
 
+  <div class="stitch"></div>
+
   <div class="section">
     <div class="section-header">
-      <h2>Buyers</h2>
-      <span class="count" id="buyer-count"></span>
+      <span class="eyebrow">Demand Side</span>
+      <div class="section-header-row">
+        <h2>Buyers</h2>
+        <span class="count" id="buyer-count"></span>
+      </div>
     </div>
     <div id="buyer-list"><div class="loading-text">Loading buyers…</div></div>
   </div>
@@ -305,6 +382,16 @@
         <button class="cancel-btn" onclick="closeRegisterModal()">Cancel</button>
       </div>
       <div class="status-msg" id="register-status-msg"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="history-modal">
+    <div class="modal-box">
+      <div class="modal-title">My Inquiries</div>
+      <div id="history-list" style="margin-top:4px;"></div>
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeHistoryModal()" style="flex:1;">Close</button>
+      </div>
     </div>
   </div>
 
@@ -348,6 +435,7 @@
       })
         .then(response => response.json())
         .then(data => {
+          saveInquiryToHistory(selectedContactName, selectedContactType);
           document.getElementById("status-msg").innerText = "Sent! We'll be in touch.";
           document.getElementById("inquiry-name").value = "";
           document.getElementById("inquiry-phone").value = "";
@@ -357,6 +445,47 @@
           document.getElementById("status-msg").innerText = "Something went wrong. Try again.";
           console.error(error);
         });
+    }
+
+    function saveInquiryToHistory(contactName, contactType) {
+      try {
+        const existing = JSON.parse(localStorage.getItem("shelfmatch_history") || "[]");
+        existing.unshift({
+          name: contactName,
+          type: contactType,
+          date: new Date().toLocaleString(),
+        });
+        localStorage.setItem("shelfmatch_history", JSON.stringify(existing.slice(0, 50)));
+      } catch (e) {
+        console.error("Could not save history:", e);
+      }
+    }
+
+    function openHistoryModal() {
+      const list = document.getElementById("history-list");
+      let history = [];
+      try {
+        history = JSON.parse(localStorage.getItem("shelfmatch_history") || "[]");
+      } catch (e) {
+        history = [];
+      }
+
+      if (history.length === 0) {
+        list.innerHTML = '<div class="loading-text">No inquiries sent yet on this device.</div>';
+      } else {
+        list.innerHTML = history.map(item => `
+          <div style="padding:10px 0;border-bottom:1px dashed var(--line);">
+            <div style="font-family:'Fraunces',serif;font-weight:600;font-size:15px;">${item.name}</div>
+            <div class="mono" style="font-size:11px;color:#8a8a7f;margin-top:2px;">${item.type === 'distributor' ? 'Contacted distributor' : 'Contacted buyer'} · ${item.date}</div>
+          </div>
+        `).join("");
+      }
+
+      document.getElementById("history-modal").classList.add("active");
+    }
+
+    function closeHistoryModal() {
+      document.getElementById("history-modal").classList.remove("active");
     }
 
     function openRegisterModal(type) {
@@ -423,7 +552,7 @@
             <div class="card-body">
               <div class="card-name">${d.NAME}</div>
               <div class="card-details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
-              <span class="tag">Distributor</span>
+              <span class="tag"><span class="dot"></span>Distributor</span>
               <button class="contact-btn" onclick="openModal('${d.NAME}', 'distributor')">Contact this distributor</button>
             </div>
           `;
@@ -450,7 +579,7 @@
             <div class="card-body">
               <div class="card-name">${b.NAME}</div>
               <div class="card-details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
-              <span class="tag">Buyer</span>
+              <span class="tag"><span class="dot"></span>Buyer</span>
               <button class="contact-btn" onclick="openModal('${b.NAME}', 'buyer')">Contact this buyer</button>
             </div>
           `;
