@@ -364,6 +364,7 @@
       <div class="modal-title" id="modal-title">Contact</div>
       <input type="text" id="inquiry-name" placeholder="Your name">
       <input type="text" id="inquiry-phone" placeholder="Your phone number">
+      <input type="email" id="inquiry-email" placeholder="Your email (for confirmation)">
       <div class="modal-actions">
         <button class="submit-btn" onclick="submitInquiry()">Send</button>
         <button class="cancel-btn" onclick="closeModal()">Cancel</button>
@@ -416,6 +417,7 @@
     function submitInquiry() {
       const name = document.getElementById("inquiry-name").value;
       const phone = document.getElementById("inquiry-phone").value;
+      const email = document.getElementById("inquiry-email").value;
 
       if (!name || !phone) {
         document.getElementById("status-msg").innerText = "Please fill in both fields.";
@@ -426,6 +428,7 @@
         secret: "shelfmatch-2026-secure",
         name,
         phone,
+        email,
         distributor: selectedContactType === "distributor" ? selectedContactName : "",
         buyer: selectedContactType === "buyer" ? selectedContactName : "",
         contactType: selectedContactType,
@@ -436,6 +439,7 @@
         document.getElementById("status-msg").innerText = "No connection — saved. Will send automatically when you're back online.";
         document.getElementById("inquiry-name").value = "";
         document.getElementById("inquiry-phone").value = "";
+        document.getElementById("inquiry-email").value = "";
         setTimeout(closeModal, 2200);
         return;
       }
@@ -451,6 +455,7 @@
           document.getElementById("status-msg").innerText = "Sent! We'll be in touch.";
           document.getElementById("inquiry-name").value = "";
           document.getElementById("inquiry-phone").value = "";
+          document.getElementById("inquiry-email").value = "";
           setTimeout(closeModal, 1500);
         })
         .catch(error => {
@@ -458,6 +463,7 @@
           document.getElementById("status-msg").innerText = "Connection issue — saved. Will send automatically when you're back online.";
           document.getElementById("inquiry-name").value = "";
           document.getElementById("inquiry-phone").value = "";
+          document.getElementById("inquiry-email").value = "";
           setTimeout(closeModal, 2200);
           console.error(error);
         });
@@ -485,7 +491,6 @@
       if (queue.length === 0) return;
 
       const remaining = [];
-      let processed = 0;
 
       queue.forEach(item => {
         fetch("https://shelfmatch-backend-5mjl.vercel.app/api/inquiries", {
@@ -496,7 +501,6 @@
           .then(response => response.json())
           .then(() => {
             saveInquiryToHistory(item.contactName, item.contactType);
-            processed++;
             localStorage.setItem("shelfmatch_queue", JSON.stringify(remaining));
             updateQueueBadge();
           })
