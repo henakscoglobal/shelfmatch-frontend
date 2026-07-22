@@ -56,7 +56,18 @@
       gap: 10px;
     }
 
-    .logo-mark {
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: var(--parchment);
+      color: var(--forest);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
 
@@ -302,16 +313,58 @@
       padding: 6px 0;
       font-family: 'IBM Plex Mono', monospace;
     }
+
+    .search-bar-wrap input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 14px;
+      background: #fff;
+      font-family: 'Inter', sans-serif;
+      box-sizing: border-box;
+    }
+
+    .search-bar-wrap input:focus {
+      outline: 2px solid var(--forest);
+      outline-offset: 1px;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-top: 10px;
+      padding-bottom: 4px;
+    }
+
+    .filter-pills::-webkit-scrollbar { display: none; }
+
+    .filter-pill {
+      flex-shrink: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 100px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--forest-soft);
+      white-space: nowrap;
+    }
+
+    .filter-pill.active {
+      background: var(--forest);
+      color: var(--parchment);
+      border-color: var(--forest);
+    }
   </style>
 </head>
 <body>
 
   <div class="top-bar">
     <div class="brand-row">
-      <svg class="logo-mark" width="32" height="32" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="6" width="16" height="16" rx="4" fill="#F6F1E4"/>
-        <rect x="16" y="12" width="16" height="16" rx="4" fill="#C9A227"/>
-      </svg>
+      <div class="brand-mark">SM</div>
       <p class="brand">ShelfMatch</p>
     </div>
     <p class="tagline">Connecting distributors and buyers across Onitsha, Nnewi, Awka &amp; Asaba</p>
@@ -326,6 +379,13 @@
   </div>
 
   <div class="stitch"></div>
+
+  <div class="section" style="padding-bottom:2px;">
+    <div class="search-bar-wrap">
+      <input type="text" id="search-input" placeholder="Search by name, location, or category…" oninput="applyFilters()">
+    </div>
+    <div class="filter-pills" id="filter-pills"></div>
+  </div>
 
   <div class="section">
     <div class="section-header">
@@ -483,6 +543,7 @@
       if (queue.length === 0) return;
 
       const remaining = [];
+      let processed = 0;
 
       queue.forEach(item => {
         fetch("https://shelfmatch-backend-5mjl.vercel.app/api/inquiries", {
@@ -493,6 +554,7 @@
           .then(response => response.json())
           .then(() => {
             saveInquiryToHistory(item.contactName, item.contactType);
+            processed++;
             localStorage.setItem("shelfmatch_queue", JSON.stringify(remaining));
             updateQueueBadge();
           })
@@ -617,27 +679,124 @@
         });
     }
 
+    let allDistributors = [];
+    let allBuyers = [];
+    let activeCategory = "All";
+
+    function renderDistributors(list) {
+      const container = document.getElementById("distributor-list");
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="loading-text">No distributors match your search.</div>';
+        return;
+      }
+
+      list.forEach(d => {
+        const card = document.createElement("div");
+        card.className = "card distributor";
+        card.innerHTML = `
+          <div class="card-bar"></div>
+          <div class="card-body">
+            <div class="card-name">${d.NAME}</div>
+            <div class="card-details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
+            <span class="tag"><span class="dot"></span>Distributor</span>
+            <button class="contact-btn" onclick="openModal('${d.NAME}', 'distributor')">Contact this distributor</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderBuyers(list) {
+      const container = document.getElementById("buyer-list");
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="loading-text">No buyers match your search.</div>';
+        return;
+      }
+
+      list.forEach(b => {
+        const card = document.createElement("div");
+        card.className = "card buyer";
+        card.innerHTML = `
+          <div class="card-bar"></div>
+          <div class="card-body">
+            <div class="card-name">${b.NAME}</div>
+            <div class="card-details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
+            <span class="tag"><span class="dot"></span>Buyer</span>
+            <button class="contact-btn" onclick="openModal('${b.NAME}', 'buyer')">Contact this buyer</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function buildFilterPills() {
+      const categories = new Set();
+      allDistributors.forEach(d => { if (d["CATEGORY "]) categories.add(d["CATEGORY "].trim()); });
+      allBuyers.forEach(b => { if (b.LOOKING_FOR) categories.add(b.LOOKING_FOR.trim()); });
+
+      const pillsContainer = document.getElementById("filter-pills");
+      pillsContainer.innerHTML = "";
+
+      const allPill = document.createElement("div");
+      allPill.className = "filter-pill active";
+      allPill.innerText = "All";
+      allPill.onclick = () => selectCategory("All", allPill);
+      pillsContainer.appendChild(allPill);
+
+      categories.forEach(cat => {
+        const pill = document.createElement("div");
+        pill.className = "filter-pill";
+        pill.innerText = cat;
+        pill.onclick = () => selectCategory(cat, pill);
+        pillsContainer.appendChild(pill);
+      });
+    }
+
+    function selectCategory(cat, pillEl) {
+      activeCategory = cat;
+      document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+      pillEl.classList.add("active");
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const query = document.getElementById("search-input").value.trim().toLowerCase();
+
+      const filteredDistributors = allDistributors.filter(d => {
+        const matchesCategory = activeCategory === "All" || (d["CATEGORY "] && d["CATEGORY "].trim() === activeCategory);
+        const matchesSearch = !query ||
+          (d.NAME && d.NAME.toLowerCase().includes(query)) ||
+          (d["LOCATION "] && d["LOCATION "].toLowerCase().includes(query)) ||
+          (d["CATEGORY "] && d["CATEGORY "].toLowerCase().includes(query));
+        return matchesCategory && matchesSearch;
+      });
+
+      const filteredBuyers = allBuyers.filter(b => {
+        const matchesCategory = activeCategory === "All" || (b.LOOKING_FOR && b.LOOKING_FOR.trim() === activeCategory);
+        const matchesSearch = !query ||
+          (b.NAME && b.NAME.toLowerCase().includes(query)) ||
+          (b.LOCATION && b.LOCATION.toLowerCase().includes(query)) ||
+          (b.LOOKING_FOR && b.LOOKING_FOR.toLowerCase().includes(query));
+        return matchesCategory && matchesSearch;
+      });
+
+      renderDistributors(filteredDistributors);
+      renderBuyers(filteredBuyers);
+      document.getElementById("distributor-count").innerText = filteredDistributors.length;
+      document.getElementById("buyer-count").innerText = filteredBuyers.length;
+    }
+
     fetch("https://shelfmatch-backend-5mjl.vercel.app/api/distributors")
       .then(response => response.json())
       .then(data => {
-        const list = document.getElementById("distributor-list");
-        list.innerHTML = "";
-        document.getElementById("distributor-count").innerText = data.distributors.length;
-
-        data.distributors.forEach(d => {
-          const card = document.createElement("div");
-          card.className = "card distributor";
-          card.innerHTML = `
-            <div class="card-bar"></div>
-            <div class="card-body">
-              <div class="card-name">${d.NAME}</div>
-              <div class="card-details">${d["LOCATION "]} — ${d["CATEGORY "]}</div>
-              <span class="tag"><span class="dot"></span>Distributor</span>
-              <button class="contact-btn" onclick="openModal('${d.NAME}', 'distributor')">Contact this distributor</button>
-            </div>
-          `;
-          list.appendChild(card);
-        });
+        allDistributors = data.distributors;
+        document.getElementById("distributor-count").innerText = allDistributors.length;
+        renderDistributors(allDistributors);
+        buildFilterPills();
       })
       .catch(error => {
         document.getElementById("distributor-list").innerHTML = '<div class="loading-text">Could not load distributors.</div>';
@@ -647,24 +806,10 @@
     fetch("https://shelfmatch-backend-5mjl.vercel.app/api/buyers")
       .then(response => response.json())
       .then(data => {
-        const list = document.getElementById("buyer-list");
-        list.innerHTML = "";
-        document.getElementById("buyer-count").innerText = data.buyers.length;
-
-        data.buyers.forEach(b => {
-          const card = document.createElement("div");
-          card.className = "card buyer";
-          card.innerHTML = `
-            <div class="card-bar"></div>
-            <div class="card-body">
-              <div class="card-name">${b.NAME}</div>
-              <div class="card-details">${b.LOCATION} — ${b.LOOKING_FOR}</div>
-              <span class="tag"><span class="dot"></span>Buyer</span>
-              <button class="contact-btn" onclick="openModal('${b.NAME}', 'buyer')">Contact this buyer</button>
-            </div>
-          `;
-          list.appendChild(card);
-        });
+        allBuyers = data.buyers;
+        document.getElementById("buyer-count").innerText = allBuyers.length;
+        renderBuyers(allBuyers);
+        buildFilterPills();
       })
       .catch(error => {
         document.getElementById("buyer-list").innerHTML = '<div class="loading-text">Could not load buyers.</div>';
